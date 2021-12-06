@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
+import {doLogin} from "../../services/AuthService";
 
 function Login() {
   const history = useHistory();
@@ -16,19 +17,17 @@ function Login() {
   function onSubmit(event) {
     event.preventDefault();
 
-    console.log('dologin');
-
-    // doLogin(email, password)
-    //   .then((response) => {
-    //     if (response) {
-    //       localStorage.setItem('token', response.token);
-    //       history.push('/dashboard');
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //     setError('Usuário/Senha inválido');
-    //   });
+    doLogin(email, password)
+      .then((response) => {
+        if (response) {
+          localStorage.setItem('token', response.token);
+          history.push('/settings');
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setError('Usuário/Senha inválido');
+      });
   }
 
   return (

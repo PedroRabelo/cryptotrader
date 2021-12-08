@@ -17,7 +17,7 @@ export async function getSettings(token) {
 export async function updateSettings(settings, token) {
   const settingsUrl = `${API_URL}/settings`;
   const headers = {
-    authorization: `Bearer ${token}`,
+    authorization: `${token}`,
   };
   const response = await axios.patch(
     settingsUrl,

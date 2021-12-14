@@ -23,6 +23,12 @@ async function updateSymbol(symbol, newSymbol) {
   if (newSymbol.quotePrecision && newSymbol.quotePrecision !== currentSymbol.quotePrecision)
     currentSymbol.quotePrecision = newSymbol.quotePrecision;
 
+  if (newSymbol.base && newSymbol.base !== currentSymbol.base)
+    currentSymbol.base = newSymbol.base;
+
+  if (newSymbol.quote && newSymbol.quote !== currentSymbol.quote)
+    currentSymbol.quote = newSymbol.quote;
+
   if (newSymbol.isFavorite !== null && newSymbol.isFavorite !== undefined && newSymbol.isFavorite !== currentSymbol.isFavorite)
     currentSymbol.isFavorite = newSymbol.isFavorite;
 
@@ -33,4 +39,12 @@ async function syncSymbols(symbol) {
   
 }
 
-module.exports = {getSymbols, getSymbol, updateSymbol, syncSymbols}
+async function deleteAll(){
+  return symbolModel.destroy({truncate: true});
+}
+
+async function bulkInsert(symbols) {
+  return symbolModel.bulkCreate(symbols);
+}
+
+module.exports = {getSymbols, getSymbol, updateSymbol, syncSymbols, deleteAll, bulkInsert}

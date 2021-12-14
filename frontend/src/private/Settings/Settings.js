@@ -210,7 +210,6 @@ function Settings() {
                     )}
                   </div>
                 </div>
-
               </form>
             </div>
           </div>

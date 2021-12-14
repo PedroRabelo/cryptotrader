@@ -5,7 +5,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 export async function getSettings(token) {
   const settingsUrl = `${API_URL}/settings`;
   const headers = {
-    authorization: `${token}`,
+    authorization: token,
   };
   const response = await axios.get(settingsUrl, {
     headers,
@@ -17,7 +17,7 @@ export async function getSettings(token) {
 export async function updateSettings(settings, token) {
   const settingsUrl = `${API_URL}/settings`;
   const headers = {
-    authorization: `${token}`,
+    authorization: token,
   };
   const response = await axios.patch(
     settingsUrl,

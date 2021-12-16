@@ -14,37 +14,39 @@ async function getSettingsDecrypted(id) {
   return settings;
 }
 
-
-function getSettingsByEmail(email){
+function getSettingsByEmail(email) {
   return settingsModel.findOne({ where: { email } });
 }
 
 function getSettings(id) {
-  return settingsModel.findOne({ where: {id} });
+  return settingsModel.findOne({ where: { id } });
 }
 
 function getDefaultSettings() {
   return settingsModel.findOne();
 }
 
-async function updateSettings(id, newSettings){
+async function updateSettings(id, newSettings) {
   const currentSettings = await getSettings(id);
-  
-  if(newSettings.email !== currentSettings.email)
+
+  if (newSettings.email !== currentSettings.email)
     currentSettings.email = newSettings.email;
-  
-  if(newSettings.password)
+
+  if (newSettings.password)
     currentSettings.password = bcrypt.hashSync(newSettings.password);
-  
-  if(newSettings.apiUrl !== currentSettings.apiUrl)
+
+  if (newSettings.apiUrl !== currentSettings.apiUrl)
     currentSettings.apiUrl = newSettings.apiUrl;
-  
-  if(newSettings.accessKey !== currentSettings.accessKey)
+
+  if (newSettings.streamUrl !== currentSettings.streamUrl)
+    currentSettings.streamUrl = newSettings.streamUrl;
+
+  if (newSettings.accessKey !== currentSettings.accessKey)
     currentSettings.accessKey = newSettings.accessKey;
-  
-  if(newSettings.secretKey)
+
+  if (newSettings.secretKey)
     currentSettings.secretKey = crypto.encrypt(newSettings.secretKey);
-  
+
   await currentSettings.save();
 }
 
@@ -53,5 +55,5 @@ module.exports = {
   getSettingsByEmail,
   getSettings,
   getDefaultSettings,
-  updateSettings
-}
+  updateSettings,
+};

@@ -1,11 +1,8 @@
-import React from 'react';
-import {
-  Route,
-  BrowserRouter,
-  Redirect,
-} from 'react-router-dom';
-import Login from './public/Login/Login';
+import React from "react";
+import { Route, BrowserRouter, Redirect } from "react-router-dom";
+import Login from "./public/Login/Login";
 import Settings from "./private/Settings/Settings";
+import Dashboard from "./private/Dashboard/Dashboard";
 
 function Routes() {
   function PrivateRoute({ children, ...rest }) {
@@ -13,11 +10,7 @@ function Routes() {
       <Route
         {...rest}
         render={() => {
-          return localStorage.getItem('token') ? (
-            children
-          ) : (
-            <Redirect to='/' />
-          );
+          return localStorage.getItem("token") ? children : <Redirect to="/" />;
         }}
       />
     );
@@ -25,11 +18,14 @@ function Routes() {
 
   return (
     <BrowserRouter>
-      <Route path='/' exact>
+      <Route path="/" exact>
         <Login />
       </Route>
-      <PrivateRoute path='/settings'>
+      <PrivateRoute path="/settings">
         <Settings />
+      </PrivateRoute>
+      <PrivateRoute path="/dashboard">
+        <Dashboard />
       </PrivateRoute>
     </BrowserRouter>
   );

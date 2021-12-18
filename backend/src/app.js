@@ -28,6 +28,9 @@ app.use('/settings', authMiddleware, settingsRouter);
 const symbolsRouter = require('./routers/symbolsRouter');
 app.use('/symbols', authMiddleware, symbolsRouter);
 
+const exchangeRouter = require('./routers/exchangeRouter');
+app.use('/exchange', authMiddleware, exchangeRouter);
+
 app.use(require('./middlewares/errorMiddleware'));
 
 module.exports = app;

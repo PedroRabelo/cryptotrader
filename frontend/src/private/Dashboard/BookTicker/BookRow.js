@@ -3,8 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 
 function BookRow(props) {
   const [data, setData] = useState({
-    bestBid: "0",
-    bestAsk: "0",
+    bid: "0",
+    ask: "0",
   });
 
   const bookRow = useMemo(

@@ -14,6 +14,10 @@ async function getSettingsDecrypted(id) {
   return settings;
 }
 
+function clearSettingsCache(id) {
+  settingsCache[id] = null;
+}
+
 function getSettingsByEmail(email) {
   return settingsModel.findOne({ where: { email } });
 }
@@ -22,8 +26,9 @@ function getSettings(id) {
   return settingsModel.findOne({ where: { id } });
 }
 
-function getDefaultSettings() {
-  return settingsModel.findOne();
+async function getDefaultSettings() {
+  const settings = await settingsModel.findOne();
+  return getSettingsDecrypted(settings.id);
 }
 
 async function updateSettings(id, newSettings) {
@@ -44,8 +49,10 @@ async function updateSettings(id, newSettings) {
   if (newSettings.accessKey !== currentSettings.accessKey)
     currentSettings.accessKey = newSettings.accessKey;
 
-  if (newSettings.secretKey)
+  if (newSettings.secretKey) {
     currentSettings.secretKey = crypto.encrypt(newSettings.secretKey);
+    clearSettingsCache(id);
+  }
 
   await currentSettings.save();
 }

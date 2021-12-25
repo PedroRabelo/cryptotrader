@@ -3,6 +3,8 @@ const Sequelize = require('sequelize');
 
 const PAGE_SIZE = 10;
 
+const FINAL_STATUS = ['FILLED', 'CANCELED', 'REJECTED'];
+
 function getOrders(symbol, page = 1) {
   const options = {
     where: {},

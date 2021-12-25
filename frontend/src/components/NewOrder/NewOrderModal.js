@@ -60,6 +60,7 @@ function NewOrderModal(props) {
         console.error(err);
         setError(err.message);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [order.symbol]);
 
   useEffect(() => {
@@ -95,6 +96,7 @@ function NewOrderModal(props) {
       btnSend.current.disabled = true;
       return setError(`Min Notional ${symbol.minLotSize}`);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [order.quantity, order.price, order.icebergQty]);
 
   function onSubmit(event) {

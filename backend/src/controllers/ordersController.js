@@ -52,7 +52,7 @@ async function cancelOrder(req, res, next) {
   const { symbol, orderId } = req.params;
 
   try {
-    const result = await exchange.cancel(symbol, orderId);
+    result = await exchange.cancel(symbol, orderId);
   } catch (err) {
     return res.status(400).json(err.body);
   }

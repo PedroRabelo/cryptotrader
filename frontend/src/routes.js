@@ -28,7 +28,7 @@ function Routes() {
       <PrivateRoute path="/dashboard">
         <Dashboard />
       </PrivateRoute>
-      <PrivateRoute path="/orders">
+      <PrivateRoute path="/orders/:symbol?">
         <Orders />
       </PrivateRoute>
     </BrowserRouter>

@@ -3,14 +3,40 @@ import Menu from "../../components/Menu/Menu";
 import NewOrderButton from "../../components/NewOrder/NewOrderButton";
 import NewOrderModal from "../../components/NewOrder/NewOrderModal";
 import { getBalance } from "../../services/ExchangeService";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation, useParams } from "react-router-dom";
+import { getOrders } from "../../services/OrdersService";
+import OrderRow from "./OrderRow";
+import OrdersPagination from "./OrdersPagination";
+import SearchSymbol from "../../components/SearchSymbol/SearchSymbol";
+import ViewOrderModal from "./ViewOrderModal";
 
 function Orders() {
+  const { symbol } = useParams();
+
+  const [search, setSearch] = useState(symbol || "");
+
+  const defaultLocation = useLocation();
+
   const [balances, setBalances] = useState({});
+  const [orders, setOrders] = useState([]);
+  const [count, setCount] = useState(0);
+  const [viewOrder, setViewOrder] = useState({});
+
+  function getPage(location) {
+    if (!location) location = defaultLocation;
+    return new URLSearchParams(location.search).get("page");
+  }
+
+  function errorProcedure(err) {
+    if (err.response && err.response.status === 401) return history.push("/");
+    console.error(err);
+  }
+
   const history = useHistory();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  const [page, setPage] = useState(parseInt(getPage()));
+
+  function getBalanceCall(token) {
     getBalance(token)
       .then((info) => {
         const balances = Object.entries(info).map((item) => {
@@ -23,15 +49,42 @@ function Orders() {
 
         setBalances(balances);
       })
-      .catch((err) => {
-        if (err.response && err.response.status === 401)
-          return history.push("/");
-        console.error(err);
-      });
-  }, []);
+      .catch((err) => errorProcedure(err));
+  }
 
-  function onOrderSubmit(orde) {
+  function getOrdersCall(token) {
+    getOrders(search, page || 1, token)
+      .then((result) => {
+        setOrders(result.rows);
+        setCount(result.count);
+      })
+      .catch((err) => errorProcedure(err));
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    getBalanceCall(token);
+    getOrdersCall(token);
+  }, [page, search]);
+
+  useEffect(() => {
+    return history.listen((location) => {
+      setPage(getPage(location));
+    });
+  }, [history]);
+
+  function onOrderSubmit(order) {
     history.go(0);
+  }
+
+  function onSearchChange(event) {
+    setSearch(event.target.value);
+  }
+
+  function onViewClick(event) {
+    const id = parseInt(event.target.id.replace("view", ""));
+    const order = orders.find((o) => o.id === id);
+    setViewOrder({ ...order });
   }
 
   return (
@@ -45,6 +98,9 @@ function Orders() {
           <div className="btn-toolbar m-2 mb-md-0">
             <div className="d-inline-flex align-items-center">
               <NewOrderButton />
+            </div>
+            <div className="btn-group ms-2 ms-lg-3">
+              <SearchSymbol onChange={onSearchChange} />
             </div>
           </div>
         </div>
@@ -61,11 +117,25 @@ function Orders() {
                 <th className="border-gray-200">Detalhes</th>
               </tr>
             </thead>
-            <tbody>{}</tbody>
+            <tbody>
+              {orders && orders.length ? (
+                orders.map((order) => (
+                  <OrderRow
+                    key={order.clientOrderId}
+                    data={order}
+                    onClick={onViewClick}
+                  />
+                ))
+              ) : (
+                <></>
+              )}
+            </tbody>
           </table>
+          <OrdersPagination count={count} />
         </div>
       </main>
       <NewOrderModal wallet={balances} onSubmit={onOrderSubmit} />
+      <ViewOrderModal data={viewOrder} onCancel={onOrderSubmit} />
     </>
   );
 }

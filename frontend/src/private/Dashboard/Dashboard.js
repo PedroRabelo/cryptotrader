@@ -8,12 +8,14 @@ import Wallet from "./Wallet/Wallet";
 import CandleChart from "./CandleChart";
 import NewOrderButton from "../../components/NewOrder/NewOrderButton";
 import NewOrderModal from "../../components/NewOrder/NewOrderModal";
+import SelectSymbol from "../../components/SelectSymbol/SelectSymbol";
 
 function Dashboard() {
   const [miniTickerState, setMiniTickerState] = useState({});
   const [bookState, setBookState] = useState({});
   const [balanceState, setBalanceState] = useState({});
   const [wallet, setWallet] = useState({});
+  const [chartSymbol, setChartSymbol] = useState("BTCUSDT");
   const history = useHistory();
 
   function onWalletUpdate(walletObj) {
@@ -45,6 +47,10 @@ function Dashboard() {
     reconnectInterval: 3000,
   });
 
+  function onChangeSymbol(event) {
+    setChartSymbol(event.target.value);
+  }
+
   return (
     <>
       <Menu />
@@ -53,11 +59,16 @@ function Dashboard() {
           <div className="d-block mb-4 mb-md-0">
             <h1 className="h4">Dashboard</h1>
           </div>
-          <div className="mb-4">
-            <NewOrderButton />
+          <div className="btn-toolbar mb-md-0">
+            <div className="d-inline-flex align-items-center">
+              <SelectSymbol onChange={onChangeSymbol} />
+            </div>
+            <div className="ms-2 ms-lg-3">
+              <NewOrderButton />
+            </div>
           </div>
         </div>
-        <CandleChart symbol="BTCUSD" />
+        <CandleChart symbol={chartSymbol} />
         <MiniTicker data={miniTickerState} />
         <div className="row">
           <BookTicker data={bookState} />

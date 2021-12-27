@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const PAGE_SIZE = 10;
 
-function OrdersPagination(props) {
+function Pagination(props) {
   function useQuery() {
     return new URLSearchParams(useLocation().search);
   }
@@ -38,10 +38,10 @@ function OrdersPagination(props) {
         </ul>
       </nav>
       <div className="fw-normal small mt-4 mt-lg-0">
-        <b>{props.count} ordens.</b>
+        <b>{props.count} resultados.</b>
       </div>
     </div>
   );
 }
 
-export default OrdersPagination;
+export default Pagination;

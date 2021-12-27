@@ -1,8 +1,18 @@
 const symbolsRepository = require('../repositories/symbolsRepository');
 
 async function getSymbols(req, res, next) {
-  const symbols = await symbolsRepository.getSymbols();
-  res.json(symbols);
+  const { search, page, onlyFavorites } = req.query;
+
+  let result;
+  if (search || page || onlyFavorites)
+    result = await symbolsRepository.searchSymbols(
+      search,
+      onlyFavorites === 'true',
+      page,
+    );
+  else result = await symbolsRepository.getSymbols();
+
+  res.json(result);
 }
 
 async function getSymbol(req, res, next) {
@@ -19,16 +29,25 @@ async function updateSymbol(req, res, next) {
 }
 
 async function syncSymbols(req, res, next) {
-  
-  const favoriteSymbols = symbolsRepository.getSymbols().filter(s => s.isFavorite).map(s => s.symbol);
-  
-  const settingsRepository = require('../repositories/settingsRepository')
-  const settings = await settingsRepository.getSettingsDecrypted(res.locals.token.id);
-  const {exchangeInfo} = require('../utils/exchange')(settings.get({ plain: true }));
-  const symbols = (await exchangeInfo()).symbols.map(item => {
+  const favoriteSymbols = symbolsRepository
+    .getSymbols()
+    .filter(s => s.isFavorite)
+    .map(s => s.symbol);
 
-    const minNotionalFilter = item.filters.find(f => f.filterType === 'MIN_NOTIONAL');
-    const minLotSizeFilter = item.filters.find(f => f.filterType === 'LOT_SIZE');
+  const settingsRepository = require('../repositories/settingsRepository');
+  const settings = await settingsRepository.getSettingsDecrypted(
+    res.locals.token.id,
+  );
+  const { exchangeInfo } = require('../utils/exchange')(
+    settings.get({ plain: true }),
+  );
+  const symbols = (await exchangeInfo()).symbols.map(item => {
+    const minNotionalFilter = item.filters.find(
+      f => f.filterType === 'MIN_NOTIONAL',
+    );
+    const minLotSizeFilter = item.filters.find(
+      f => f.filterType === 'LOT_SIZE',
+    );
 
     return {
       symbol: item.symbol,
@@ -41,11 +60,11 @@ async function syncSymbols(req, res, next) {
       isFavorite: favoriteSymbols.some(s => s === item.symbol),
     };
   });
-  
+
   await symbolsRepository.deleteAll();
   await symbolsRepository.bulkInsert(symbols);
-  
-  res.json(201); 
+
+  res.json(201);
 }
 
-module.exports = {getSymbols, getSymbol, updateSymbol, syncSymbols} 
+module.exports = { getSymbols, getSymbol, updateSymbol, syncSymbols };

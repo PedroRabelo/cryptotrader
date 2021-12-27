@@ -6,6 +6,8 @@ router.get('/:symbol?', ordersController.getOrders);
 
 router.post('/', ordersController.placeOrder);
 
+router.post('/:id/sync', ordersController.syncOrder);
+
 router.delete('/:symbol/:orderId', ordersController.cancelOrder);
 
 module.exports = router;

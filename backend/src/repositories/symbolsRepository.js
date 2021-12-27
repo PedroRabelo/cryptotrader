@@ -1,26 +1,55 @@
 const symbolModel = require('../models/symbolModel');
+const { Sequelize } = require('sequelize');
 
 function getSymbols() {
   return symbolModel.findAll();
 }
 
+function searchSymbols(search, onlyFavorites = false, page = 1) {
+  const options = {
+    where: {},
+    order: [['symbol', 'ASC']],
+    limit: 10,
+    offset: 10 * (page - 1),
+  };
+
+  if (search) {
+    if (search.length < 6)
+      options.where = { symbol: { [Sequelize.Op.like]: `%${search}%` } };
+    else options.where = { symbol: search };
+  }
+
+  if (onlyFavorites) options.where.isFavorite = true;
+
+  return symbolModel.findAndCountAll(options);
+}
+
 function getSymbol(symbol) {
-  return symbolModel.findOne({ where: {symbol} });
+  return symbolModel.findOne({ where: { symbol } });
 }
 
 async function updateSymbol(symbol, newSymbol) {
   const currentSymbol = await getSymbol(symbol);
 
-  if (newSymbol.minNotional && newSymbol.minNotional !== currentSymbol.minNotional)
+  if (
+    newSymbol.minNotional &&
+    newSymbol.minNotional !== currentSymbol.minNotional
+  )
     currentSymbol.minNotional = newSymbol.minNotional;
 
   if (newSymbol.minLotSize && newSymbol.minLotSize !== currentSymbol.minLotSize)
     currentSymbol.minLotSize = newSymbol.minLotSize;
 
-  if (newSymbol.basePrecision && newSymbol.basePrecision !== currentSymbol.basePrecision)
+  if (
+    newSymbol.basePrecision &&
+    newSymbol.basePrecision !== currentSymbol.basePrecision
+  )
     currentSymbol.basePrecision = newSymbol.basePrecision;
 
-  if (newSymbol.quotePrecision && newSymbol.quotePrecision !== currentSymbol.quotePrecision)
+  if (
+    newSymbol.quotePrecision &&
+    newSymbol.quotePrecision !== currentSymbol.quotePrecision
+  )
     currentSymbol.quotePrecision = newSymbol.quotePrecision;
 
   if (newSymbol.base && newSymbol.base !== currentSymbol.base)
@@ -29,22 +58,32 @@ async function updateSymbol(symbol, newSymbol) {
   if (newSymbol.quote && newSymbol.quote !== currentSymbol.quote)
     currentSymbol.quote = newSymbol.quote;
 
-  if (newSymbol.isFavorite !== null && newSymbol.isFavorite !== undefined && newSymbol.isFavorite !== currentSymbol.isFavorite)
+  if (
+    newSymbol.isFavorite !== null &&
+    newSymbol.isFavorite !== undefined &&
+    newSymbol.isFavorite !== currentSymbol.isFavorite
+  )
     currentSymbol.isFavorite = newSymbol.isFavorite;
 
   await currentSymbol.save();
 }
 
-async function syncSymbols(symbol) {
-  
-}
+async function syncSymbols(symbol) {}
 
-async function deleteAll(){
-  return symbolModel.destroy({truncate: true});
+async function deleteAll() {
+  return symbolModel.destroy({ truncate: true });
 }
 
 async function bulkInsert(symbols) {
   return symbolModel.bulkCreate(symbols);
 }
 
-module.exports = {getSymbols, getSymbol, updateSymbol, syncSymbols, deleteAll, bulkInsert}
+module.exports = {
+  getSymbols,
+  searchSymbols,
+  getSymbol,
+  updateSymbol,
+  syncSymbols,
+  deleteAll,
+  bulkInsert,
+};

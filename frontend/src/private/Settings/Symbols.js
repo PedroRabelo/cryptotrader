@@ -1,57 +1,77 @@
-import React, { useEffect, useState } from 'react';
-import { getSymbols, syncSymbols } from '../../services/SymbolsService';
-import { useHistory } from 'react-router-dom';
-import SymbolRow from './SymbolRow';
+import React, { useEffect, useState } from "react";
+import { searchSymbols, syncSymbols } from "../../services/SymbolsService";
+import { useHistory, useLocation } from "react-router-dom";
+import SymbolRow from "./SymbolRow";
 import SelectQuote, {
-  filterSymbolNames, filterSymbolObjects,
   getDefaultQuote,
   setDefaultQuote,
-} from '../../components/SelectQuote/SelectQuote';
-import SymbolModal from './SymbolModal';
+} from "../../components/SelectQuote/SelectQuote";
+import SymbolModal from "./SymbolModal";
+import Pagination from "../../components/Pagination/Pagination";
 
-function Symbols(){
+function Symbols() {
   const history = useHistory();
 
+  const defaultLocation = useLocation();
+
+  function getPage(location) {
+    if (!location) location = defaultLocation;
+    return new URLSearchParams(location.search).get("page") || 1;
+  }
+
+  useEffect(() => {
+    return history.listen((location) => {
+      // eslint-disable-next-line
+      setPage(getPage(location));
+    });
+  }, [history]);
+
   const [symbols, setSymbols] = useState([]);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [count, setCount] = useState(0);
+  const [page, setPage] = useState(getPage());
+  const [success, setSuccess] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
   const [quote, setQuote] = useState(getDefaultQuote());
   const [editSymbol, setEditSymbol] = useState({
-    symbol: '',
+    symbol: "",
     basePrecision: 0,
     quotePrecision: 0,
-    minLotSize: '',
-    minNotional: '',
+    minLotSize: "",
+    minNotional: "",
   });
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    getSymbols(token)
-      .then(symbols => {
-        setSymbols(filterSymbolObjects(symbols, quote));
-      })
-      .catch(err => {
-        if(err.response && err.response.status === 401)
-          return history.push('/');
+  function errorHandling(err) {
+    console.error(err.response ? err.response.data : err.message);
+    setError(err.response ? err.response.data : err.message);
+    setSuccess("");
+  }
 
-        console.error(err.message);
-        setError(err.message);
-        setSuccess('');
+  function loadSymbols(selectedValue) {
+    const token = localStorage.getItem("token");
+    const search = selectedValue === "FAVORITES" ? "" : selectedValue;
+    const onlyFavorites = selectedValue === "FAVORITES";
+    searchSymbols(search, onlyFavorites, getPage(), token)
+      .then((result) => {
+        setSymbols(result.rows);
+        setCount(result.count);
       })
-  }, [isSyncing, quote]);
+      .catch((err) => errorHandling(err));
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line
+    loadSymbols(quote);
+  }, [isSyncing, quote, page]);
 
   function onSyncClick(event) {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     setIsSyncing(true);
     syncSymbols(token)
       .then((response) => setIsSyncing(false))
       .catch((err) => {
-        if (err.response && err.response.status === 401)
-          return history.push('/');
-        console.error(err.message);
-        setError(err.message);
-        setSuccess('');
+        setIsSyncing(false);
+        errorHandling(err);
       });
   }
 
@@ -61,136 +81,109 @@ function Symbols(){
   }
 
   function onEditSymbol(event) {
-    const symbol = event.target.id.replace('edit', '');
-    const symbolObj = symbols.find(
-      (s) => s.symbol === symbol
-    );
+    const symbol = event.target.id.replace("edit", "");
+    const symbolObj = symbols.find((s) => s.symbol === symbol);
     setEditSymbol(symbolObj);
   }
 
-  function onModalSubmit(event) {
-
-  }
+  function onModalSubmit(event) {}
 
   return (
     <>
-      <div className='row'>
-        <div className='col-12'>
-          <div className='col-12 mb-4'>
-            <div className='card border-0 shadow'>
-              <div className='card-header'>
-                <div className='row align-items-center'>
-                  <div className='col'>
-                    <h2 className='fs-5 fw-bold mb-0'>
-                      Symbols
-                    </h2>
+      <div className="row">
+        <div className="col-12">
+          <div className="col-12 mb-4">
+            <div className="card border-0 shadow">
+              <div className="card-header">
+                <div className="row align-items-center">
+                  <div className="col">
+                    <h2 className="fs-5 fw-bold mb-0">Symbols</h2>
                   </div>
-                  <div className='col'>
+                  <div className="col">
                     <SelectQuote onChange={onQuoteChange} />
                   </div>
                 </div>
               </div>
-              <div className='table-responsive'>
-                <table className='table align-items-center table-flush'>
-                  <thead className='thead-light'>
-                  <tr>
-                    <th
-                      className='border-bottom'
-                      scope='col'
-                    >
-                      Symbol
-                    </th>
-                    <th
-                      className='border-bottom'
-                      scope='col'
-                    >
-                      Base Prec
-                    </th>
-                    <th
-                      className='border-bottom'
-                      scope='col'
-                    >
-                      Quote Prec
-                    </th>
-                    <th
-                      className='border-bottom'
-                      scope='col'
-                    >
-                      Min Notional
-                    </th>
-                    <th
-                      className='border-bottom'
-                      scope='col'
-                    >
-                      Min Lot Size
-                    </th>
-                    <th>Actions</th>
-                  </tr>
+              <div className="table-responsive">
+                <table className="table align-items-center table-flush">
+                  <thead className="thead-light">
+                    <tr>
+                      <th className="border-bottom" scope="col">
+                        Symbol
+                      </th>
+                      <th className="border-bottom" scope="col">
+                        Base Prec
+                      </th>
+                      <th className="border-bottom" scope="col">
+                        Quote Prec
+                      </th>
+                      <th className="border-bottom" scope="col">
+                        Min Notional
+                      </th>
+                      <th className="border-bottom" scope="col">
+                        Min Lot Size
+                      </th>
+                      <th>Actions</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  {symbols.map((item) => (
-                    <SymbolRow
-                      key={item.symbol}
-                      data={item}
-                      onClick={onEditSymbol}
-                    />
-                  ))}
+                    {symbols.map((item) => (
+                      <SymbolRow
+                        key={item.symbol}
+                        data={item}
+                        onClick={onEditSymbol}
+                      />
+                    ))}
                   </tbody>
-                  <tfoot>
-                  <tr>
-                    <td colSpan='2'>
+                </table>
+                <Pagination count={count} />
+                <div className="card-footer">
+                  <div className="ŕow">
+                    <div className="col">
                       <button
-                        className='btn btn-primary animate-up-2'
-                        type='button'
+                        className="btn btn-primary animate-up-2"
+                        type="button"
                         onClick={onSyncClick}
                       >
                         <svg
-                          className='icon icon-xs'
-                          fill='none'
-                          stroke='currentColor'
-                          viewBox='0 0 24 24'
-                          xmlns='http://www.w3.org/2000/svg'
+                          className="icon icon-xs"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
                         >
                           <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                             strokeWidth={1}
-                            d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                           />
                         </svg>
-                        {isSyncing
-                          ? 'Syncing...'
-                          : 'Sync'}
+                        {isSyncing ? "Syncing..." : "Sync"}
                       </button>
-                    </td>
-                    {error && error.length ? (
-                      <div className='alert alert-danger'>
-                        {error}
-                      </div>
-                    ) : (
-                      <></>
-                    )}
-                    {success && error.length ? (
-                      <div className='alert alert-success'>
-                        {error}
-                      </div>
-                    ) : (
-                      <></>
-                    )}
-                  </tr>
-                  </tfoot>
-                </table>
+                    </div>
+                    <div className="col">
+                      {error && error.length ? (
+                        <div className="alert alert-danger">{error}</div>
+                      ) : (
+                        <></>
+                      )}
+                      {success && error.length ? (
+                        <div className="alert alert-success">{error}</div>
+                      ) : (
+                        <></>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <SymbolModal
-        data={editSymbol}
-        onSubmit={onModalSubmit}
-      />
+      <SymbolModal data={editSymbol} onSubmit={onModalSubmit} />
     </>
-  )
+  );
 }
 
 export default Symbols;

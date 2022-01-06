@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 const ordersRepository = require('./repositories/ordersRepository');
+const technicalindicators = require('technicalindicators');
 
 module.exports = (settings, wss) => {
   if (!settings)
@@ -74,6 +75,25 @@ module.exports = (settings, wss) => {
       broadcast({ balance: balanceData });
     },
     executionData => processExecutionData(executionData),
+  );
+
+  function calcRSI(closes) {
+    const rsiResult = technicalindicators.rsi({
+      period: 14,
+      values: closes,
+    });
+    return parseFloat(rsiResult[rsiResult.length - 1]);
+  }
+
+  function processChartData(closes, callback) {
+    const rsi = calcRSI(closes);
+    //console.log(rsi);
+  }
+
+  exchange.chartStream('BTCBUSD', '1m', ohlc =>
+    processChartData(ohlc.close, msg => {
+      console.log(msg);
+    }),
   );
 
   console.log('App Exchange Monitor is running');

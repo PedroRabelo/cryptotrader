@@ -3,6 +3,11 @@ const technicalindicators = require('technicalindicators');
 const indexKeys = {
   RSI: 'RSI',
   MACD: 'MACD',
+  MINI_TICKER: 'MINI_TICKER',
+  BOOK: 'BOOK',
+  WALLET: 'WALLET',
+  LAST_ORDER: 'LAST_ORDER',
+  LAST_CANDLE: 'LAST_CANDLE'
 };
 
 function RSI(closes, period = 14) {
@@ -16,14 +21,14 @@ function RSI(closes, period = 14) {
   };
 }
 
-function MACD(closes, fatsPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
+function MACD(closes, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
   const macdResult = technicalindicators.macd({
     values: closes,
     SimpleMAOscillator: false,
     SimpleMASignal: false,
-    fastPeriod,
-    slowPeriod,
-    signalPeriod,
+    fastPeriod: parseInt(fastPeriod),
+    slowPeriod: parseInt(slowPeriod),
+    signalPeriod: parseInt(signalPeriod),
   });
 
   return {

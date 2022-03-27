@@ -37,6 +37,9 @@ app.use('/orders', authMiddleware, ordersRouter);
 const monitorsRouter = require('./routers/monitorsRouter');
 app.use('/monitors', authMiddleware, monitorsRouter);
 
+const beholderRouter = require('./routers/beholderRouter');
+app.use('/beholder', authMiddleware, beholderRouter);
+
 app.use(require('./middlewares/errorMiddleware'));
 
 module.exports = app;

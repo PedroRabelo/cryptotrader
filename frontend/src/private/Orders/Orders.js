@@ -9,6 +9,7 @@ import OrderRow from "./OrderRow";
 import Pagination from "../../components/Pagination/Pagination";
 import SearchSymbol from "../../components/SearchSymbol/SearchSymbol";
 import ViewOrderModal from "./ViewOrderModal";
+import Footer from "../../components/Footer/Footer";
 
 function Orders() {
   const { symbol } = useParams();
@@ -128,6 +129,7 @@ function Orders() {
           </table>
           <Pagination count={count} />
         </div>
+        <Footer />
       </main>
       <NewOrderModal wallet={balances} onSubmit={onOrderSubmit} />
       <ViewOrderModal data={viewOrder} onCancel={onOrderSubmit} />

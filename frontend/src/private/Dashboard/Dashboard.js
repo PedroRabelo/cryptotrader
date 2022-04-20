@@ -9,6 +9,7 @@ import CandleChart from "./CandleChart";
 import NewOrderButton from "../../components/NewOrder/NewOrderButton";
 import NewOrderModal from "../../components/NewOrder/NewOrderModal";
 import SelectSymbol from "../../components/SelectSymbol/SelectSymbol";
+import Footer from "../../components/Footer/Footer";
 
 function Dashboard() {
   const [miniTickerState, setMiniTickerState] = useState({});
@@ -74,6 +75,7 @@ function Dashboard() {
           <BookTicker data={bookState} />
           <Wallet data={balanceState} onUpdate={onWalletUpdate} />
         </div>
+        <Footer />
       </main>
       <NewOrderModal wallet={wallet} onSubmit={onOrderSubmit} />
     </>

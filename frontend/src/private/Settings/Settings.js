@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getSettings, updateSettings } from "../../services/SettingsService";
 import Menu from "../../components/Menu/Menu";
 import Symbols from "./Symbols";
+import Footer from "../../components/Footer/Footer";
 
 function Settings() {
   const inputEmail = useRef("");
@@ -227,6 +228,7 @@ function Settings() {
           </div>
         </div>
         <Symbols />
+        <Footer />
       </main>
     </>
   );

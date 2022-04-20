@@ -1,10 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useHistory } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getBalance } from "../../../services/ExchangeService";
 
 function Wallet(props) {
-  const history = useHistory();
 
   const [balances, setBalances] = useState([]);
 
@@ -22,11 +20,7 @@ function Wallet(props) {
         if (props.onUpdate) props.onUpdate(balances);
         setBalances(balances);
       })
-      .catch((err) => {
-        if (err.response && err.response.status === 401)
-          return history.push("/");
-        console.error(err);
-      });
+      .catch(err => console.log(err.response ? err.response.data : err.message));
   }
 
   useEffect(() => {

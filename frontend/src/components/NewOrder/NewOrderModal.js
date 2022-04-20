@@ -7,7 +7,6 @@ import SelectSide from "./SelectSide";
 import OrderType from "./OrderType";
 import QuantityInput from "./QuantityInput";
 import { STOP_TYPES } from "../../services/ExchangeService";
-import { useHistory } from "react-router-dom";
 import { placeOrder } from "../../services/OrdersService";
 
 function NewOrderModal(props) {
@@ -15,7 +14,6 @@ function NewOrderModal(props) {
   const btnSend = useRef("");
   const inputTotal = useRef("");
 
-  const history = useHistory();
   const [error, setError] = useState("");
 
   const DEFAULT_ORDER = {
@@ -53,12 +51,8 @@ function NewOrderModal(props) {
         setSymbol(symbolObject);
       })
       .catch((err) => {
-        if (err.response && err.response.status === 401) {
-          btnClose.current.click();
-          return history.push("/");
-        }
-        console.error(err);
-        setError(err.message);
+        console.error(err.response ? err.response.data : err.message);
+        setError(err.response ? err.response.data : err.message);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [order.symbol]);
@@ -107,12 +101,8 @@ function NewOrderModal(props) {
         if (props.onSubmit) props.onSubmit(result);
       })
       .catch((err) => {
-        if (err.response && err.response.status === 401) {
-          btnClose.current.click();
-          return history.push("/");
-        }
-        console.error(err);
-        setError(err.message);
+        console.error(err.response ? err.response.data : err.message);
+        setError(err.response ? err.response.data : err.message);
       });
   }
 
@@ -143,13 +133,11 @@ function NewOrderModal(props) {
     const quantity = parseFloat(order.quantity);
     if (order.type === "MARKET" && quantity) {
       if (order.side === "BUY")
-        inputTotal.current.value = `${
-          quantity * parseFloat(book.ask)
-        }`.substring(0, 8);
+        inputTotal.current.value = `${quantity * parseFloat(book.ask)
+          }`.substring(0, 8);
       else
-        inputTotal.current.value = `${
-          quantity * parseFloat(book.bid)
-        }`.substring(0, 8);
+        inputTotal.current.value = `${quantity * parseFloat(book.bid)
+          }`.substring(0, 8);
 
       if (parseFloat(inputTotal.current.value) < order.minNotional) {
         btnSend.current.disabled = true;

@@ -5,10 +5,8 @@ import SelectQuote, {
 import { useEffect, useState } from 'react';
 import TickerRow from './TickerRow';
 import { getSymbols } from '../../../services/SymbolsService';
-import { useHistory } from 'react-router-dom';
 
 function MiniTicker(props) {
-  const history = useHistory();
   const [symbols, setSymbols] = useState([]);
   const [quote, setQuote] = useState(getDefaultQuote());
 
@@ -18,12 +16,8 @@ function MiniTicker(props) {
       .then((symbols) =>
         setSymbols(filterSymbolNames(symbols, quote))
       )
-      .catch((err) => {
-        if (err.response && err.response.status === 401)
-          return history.push('/');
-        console.error(err);
-      });
-  }, [history, quote]);
+      .catch(err => console.log(err.response ? err.response.data : err.message));
+  }, [quote]);
 
   function onQuoteChange(event) {
     setQuote(event.target.value);

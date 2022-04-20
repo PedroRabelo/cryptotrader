@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "./BaseService";
 import { STOP_TYPES } from "./ExchangeService";
 
 const API_URL = process.env.REACT_APP_API_URL;

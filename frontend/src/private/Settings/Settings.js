@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { getSettings, updateSettings } from "../../services/SettingsService";
-import { useHistory } from "react-router-dom";
 import Menu from "../../components/Menu/Menu";
 import Symbols from "./Symbols";
 
@@ -12,8 +11,6 @@ function Settings() {
   const inputStreamUrl = useRef("");
   const inputAccessKey = useRef("");
   const inputSecretKey = useRef("");
-
-  const history = useHistory();
 
   const [error, setError] = useState([]);
   const [success, setSuccess] = useState("");
@@ -29,10 +26,8 @@ function Settings() {
         inputAccessKey.current.value = settings.accessKey;
       })
       .catch((err) => {
-        if (err.response && err.response.status === 401)
-          return history.push("/");
-        if (err.response) setError(err.response.data);
-        else setError(err.message);
+        console.log(err.response ? err.response.data : err.message);
+        setError(err.response ? err.response.data : err.message);
       });
   }, []);
 
@@ -70,9 +65,12 @@ function Settings() {
         inputConfirmPassword.current.value = "";
       } else {
         setSuccess("");
-        console.error(error.message);
         setError("Não foi possível atualizar as configurações");
       }
+    }).catch(error => {
+      setSuccess('');
+      console.log(error.response ? error.response.data : error.message);
+      setError("Não foi possível atualizar as configurações");
     });
   }
 

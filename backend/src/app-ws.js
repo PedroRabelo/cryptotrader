@@ -17,7 +17,7 @@ function onConnection(ws, req) {
 }
 
 function corsValidation(origin) {
-  return process.env.CORS_ORIGIN.startsWith(origin);
+  return process.env.CORS_ORIGIN === '*' || process.env.CORS_ORIGIN.startsWith(origin);
 }
 
 function verifyClient(info, callback) {

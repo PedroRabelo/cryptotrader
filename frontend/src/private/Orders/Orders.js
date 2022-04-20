@@ -27,11 +27,6 @@ function Orders() {
     return new URLSearchParams(location.search).get("page");
   }
 
-  function errorProcedure(err) {
-    if (err.response && err.response.status === 401) return history.push("/");
-    console.error(err);
-  }
-
   const history = useHistory();
 
   const [page, setPage] = useState(parseInt(getPage()));
@@ -49,7 +44,7 @@ function Orders() {
 
         setBalances(balances);
       })
-      .catch((err) => errorProcedure(err));
+      .catch(err => console.log(err.response ? err.response.data : err.message));
   }
 
   function getOrdersCall(token) {
@@ -58,7 +53,7 @@ function Orders() {
         setOrders(result.rows);
         setCount(result.count);
       })
-      .catch((err) => errorProcedure(err));
+      .catch(err => console.log(err.response ? err.response.data : err.message));
   }
 
   useEffect(() => {
